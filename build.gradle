@@ -1,10 +1,33 @@
 apply plugin: 'com.android.library'
 
+buildscript {
+    repositories {
+        //...
+        //In IntelliJ or older versions of Android Studio
+        //maven {
+        //   url 'https://maven.google.com'
+        //}
+        google()//in newer versions of Android Studio
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.6.3'
+    }
+}
+
+allprojects {
+    repositories {
+        google() // and here
+        jcenter()
+    }
+}
+
 android {
-    compileSdkVersion rootProject.ext.targetSdkVersion
+    compileSdkVersion 28 //rootProject.ext.targetSdkVersion
+    ndkVersion "21.3.6528147"
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdkVersion 28 //rootProject.ext.minSdkVersion
+        targetSdkVersion 28 //rootProject.ext.targetSdkVersion
 
         externalNativeBuild {
             ndkBuild {
@@ -59,8 +82,12 @@ task copyFilesMagiskRelease(type: Copy) {
         file("$zipPathMagiskRelease/common").mkdirs()
         file("$zipPathMagiskRelease/system").mkdirs()
         file("$zipPathMagiskRelease/system_x86").mkdirs()
+        file("$zipPathMagiskRelease/META-INF/com/google/android").mkdirs()
 
         file("$zipPathMagiskRelease/post-fs-data.sh").renameTo("$zipPathMagiskRelease/common/post-fs-data.sh")
+
+        file("$zipPathMagiskRelease/update-binary").renameTo("$zipPathMagiskRelease/META-INF/com/google/android/update-binary")
+        file("$zipPathMagiskRelease/updater-script").renameTo("$zipPathMagiskRelease/META-INF/com/google/android/updater-script")
 
         file("$libPathRelease/arm64-v8a").renameTo("$zipPathMagiskRelease/system/lib64")
         file("$libPathRelease/armeabi-v7a").renameTo("$zipPathMagiskRelease/system/lib")
@@ -76,6 +103,7 @@ task copyFilesMagiskRelease(type: Copy) {
         file("$path/gsm.sim.operator.iso-country").text = "us"
         file("$path/packages/com.google.android.gms").createNewFile()
         file("$path/packages/com.google.android.gsf").createNewFile()
+        file("$path/packages/com.google.android.ims").createNewFile()
         file("$path/packages/com.google.android.apps.maps").createNewFile()
     }
 }
